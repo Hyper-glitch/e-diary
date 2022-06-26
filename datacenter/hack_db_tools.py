@@ -1,5 +1,4 @@
 import random
-
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 from datacenter.models import Mark, Chastisement, Lesson, Commendation, Schoolkid
@@ -23,9 +22,10 @@ def create_commendation(subject, text, schoolkid_name, teacher):
         print(f'There are schoolkids with name {schoolkid_name} more than one!')
     except ObjectDoesNotExist:
         print(f'There is no one schoolkids with name {schoolkid_name}!')
-
-    lessons = Lesson.objects.filter(year_of_study=6, group_letter='А', subject__title=subject.first().title)
-    lesson = random.choice(lessons)
-    Commendation.objects.create(
-        text=text, created=lesson.date, schoolkid=schoolkid.first(), subject=subject.first(), teacher=teacher.first(),
-    )
+    else:
+        lessons = Lesson.objects.filter(year_of_study=6, group_letter='А', subject__title=subject.first().title)
+        lesson = random.choice(lessons)
+        Commendation.objects.create(
+            text=text, created=lesson.date, schoolkid=schoolkid.first(),
+            subject=subject.first(), teacher=teacher.first(),
+        )
