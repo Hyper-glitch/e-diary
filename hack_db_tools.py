@@ -3,7 +3,7 @@ import random
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
-from datacenter.models import Mark, Chastisement, Lesson, Commendation, Schoolkid, Teacher
+from datacenter.models import Mark, Chastisement, Lesson, Commendation, Schoolkid, Teacher, Subject
 
 COMPLIMENTS = [
     'Молодец!', 'Отлично!', 'Хорошо!', 'Гораздо лучше, чем я ожидал!', 'Ты меня приятно удивил!',
@@ -38,25 +38,30 @@ def remove_chastisements(schoolkid: Schoolkid):
     chastisement.delete()
 
 
-def create_commendation(subject: str, schoolkid_name: str, teacher: Teacher):
+def create_commendation(subject: str, year_of_study: int, schoolkid_name: str, teacher: Teacher):
     """Create commendation for given subject and schoolkid.
     Args:
         subject: mathematics, Russian, etc. - tied to the year of study.
+        year_of_study: current year of study.
         schoolkid_name: schoolkid's name.
         teacher: obj from database.
     Returns:
         None
     """
     try:
+        subject_obj = Subject.objects.get(title=subject, year_of_study=year_of_study)
+    except ObjectDoesNotExist:
+        print(f'There is no one subject - {subject}! Probably subject title empty or has a mistakes.')
+    try:
         schoolkid = Schoolkid.objects.get(full_name__contains=schoolkid_name)
     except MultipleObjectsReturned:
-        print(f'There are schoolkids with name {schoolkid_name} more than one!')
+        print(f'There are a lot of  schoolkids with name {schoolkid_name} ! Check full schoolkid name.')
     except ObjectDoesNotExist:
-        print(f'There is no one schoolkids with name {schoolkid_name}!')
+        print(f'There is no one schoolkids with name {schoolkid_name}! Probably full name empty or has a mistakes.')
     else:
-        lessons = Lesson.objects.filter(year_of_study=6, group_letter='А', subject__title=subject.first().title)
+        lessons = Lesson.objects.filter(year_of_study=6, group_letter='А', subject__title=subject_obj.first().title)
         lesson = random.choice(lessons)
         Commendation.objects.create(
             text=random.choice(COMPLIMENTS), created=lesson.date, schoolkid=schoolkid.first(),
-            subject=subject.first(), teacher=teacher.first(),
+            subject=subject_obj.first(), teacher=teacher.first(),
         )
