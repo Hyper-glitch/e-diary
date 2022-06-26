@@ -46,6 +46,35 @@
 - `ALLOWED_HOSTS` — см [документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts).
 - `DATABASE_NAME` — путь до базы данных, например: `schoolbase.sqlite3`
 
+## Сценарии использования
+
+### 1. Как исправить оценки
+1. Загрузить скрипт на сервер   
+https://linuxize.com/post/how-to-use-scp-command-to-securely-transfer-files/
+```
+scp ../e-diary/hack_db_tools.py user@ip_adress:~/e-diary
+```
+2. На сервере
+```
+cd ~/e-diary && python manage.py shell
+```
+3. В InteractiveConsole   
+https://www.youtube.com/watch?v=l1uPywC9sn4
+```
+import hack_db_tools
+from datacenter import models
+
+
+schoolkid = models.Schoolkid.objects.get(full_name='полное ФИО ученика')
+hack_db_tools.fix_marks(schoolkid=schoolkid)
+hack_db_tools.remove_chastisements(schoolkid=schoolkid)
+teacher = models.Teacher(full_name='полное ФИО учителя предмета')
+hack_db_tools.create_commendation(
+    subject=subject, year_of_study=год_обучения(int), 
+    schoolkid_name='ФИО', teacher=teacher,
+)
+```
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org).
